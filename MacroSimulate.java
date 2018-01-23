@@ -1,30 +1,47 @@
 import java.awt.event.KeyEvent;
-import java.util.Arrays;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.Timer;
+
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.*;
 
 public class MacroSimulate implements ActionListener{
 
     private JFrame frame;
-    private JPanel buttonPanel;
+    private JPanel macroPanel;
     private JLabel lblCode;
     private JLabel lblTimer;
     private JTextField txtCode;
     private JButton btnCode;
+
+    private JPanel configPanel;
+    private JLabel lblConfig;
+    private JLabel lblTimerCountDown;
+    private JLabel lblNumRepetitions;
+    private JLabel lblIntervalToPressDown;
+    private JTextField txtTimerCountDown;
+    private JTextField txtNumRepetitions;
+    private JTextField txtIntervalToPressDown;
+    private JButton btnConfig;
     
     private int width = 600;
     private int heigh = 300;
     private int counter = 0;
     private int counterKeyPress = 0;
     private Timer timer;
-    private Timer timerKeyPress;
     private Robis robis;
     
-    private final int countDown = 3;
-    private final int countRepetitions = 5;
-    private final int countDownKeyPress = 1;
+    private int countDown = 3;
+    private int countRepetitions = 1;
+    private int countDownKeyPress = 500;
+
     
     public static void main(String[] args) {
 	new MacroSimulate();
@@ -34,7 +51,13 @@ public class MacroSimulate implements ActionListener{
 	int[] numbers = new int[numString.length()];
 
 	for(int i = 0; i < numbers.length; i++){
-	    numbers[i] = Integer.parseInt(""+numString.charAt(i));
+	    try{
+		numbers[i] = Integer.parseInt(""+numString.charAt(i));
+	    }catch (NumberFormatException e){
+		lblTimer.setText("Code is numeric only. Try Again!");
+		return new int[0];
+	    }
+	       
 	}
 	
 	return numbers;
@@ -81,7 +104,11 @@ public class MacroSimulate implements ActionListener{
 		    break;
 		}
 	    }
-	    
+	    try {
+		Thread.sleep(countDownKeyPress);
+	    } catch (InterruptedException e) {
+		e.printStackTrace();
+	    }
 	    robis.pressArrowDown();
 	    counter += 1;
 	}
@@ -91,31 +118,41 @@ public class MacroSimulate implements ActionListener{
     public MacroSimulate()
     {
 	robis = new Robis();
-	
-        frame = new JFrame("Macro Simulatre");
+
+	countDown = 3;         
+	countRepetitions = 1; 
+        countDownKeyPress = 500;
+
+	frame = new JFrame("Macro Simulatre");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(width, heigh);
 
-        buttonPanel = new JPanel();
+
+	// ===========================================================
+	// Macro Panel  
+	// ===========================================================
+	
+        macroPanel = new JPanel(new GridLayout(4, 1));
+
 	lblCode = new JLabel("Code to be keypressed automaticaly");
-	buttonPanel.add(lblCode);
+	macroPanel.add(lblCode);
 
 	txtCode = new JTextField(10);
-	buttonPanel.add(txtCode);
+	macroPanel.add(txtCode);
 
 	timer = new Timer(1000, new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-		    if(counter < countDown){
+		    if(counter <= countDown){
 			lblTimer.setText("Timer: "+ (countDown - counter) + "s");
 			counter+=1;
 		    }else{
 			counter = 0;
 			
-			lblTimer.setText("Execute Macro!");
-			
 			String text = txtCode.getText();
 
 			executeMacro(text);
+
+			lblTimer.setText("Macro Done!");
 			
 			timer.stop();
 		    }
@@ -123,42 +160,96 @@ public class MacroSimulate implements ActionListener{
 	    });
 	timer.setInitialDelay(0);
         timer.setRepeats(true);
-
-	timerKeyPress = new Timer(10000, new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-		    if(counter < countDownKeyPress){
-			counterKeyPress += 1;
-		    }else{
-			counterKeyPress = 0;			
-			timerKeyPress.stop();
-		    }
-		}
-	    });
-	timerKeyPress.setInitialDelay(0);
-        timerKeyPress.setRepeats(true);
 	
-	btnCode = new JButton("Click");
+	btnCode = new JButton("Start Countdown to Macro!");
         btnCode.addActionListener(new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+		    lblConfig.setText("");
 		    timer.start();
 		}
 	    });
-	buttonPanel.add(btnCode);
+	macroPanel.add(btnCode);
 
 
-	lblTimer = new JLabel("Algo");
-	buttonPanel.add(lblTimer);
+	lblTimer = new JLabel("Timer for macro execution");
+	macroPanel.add(lblTimer);
 
-        frame.getContentPane().add(buttonPanel, BorderLayout.NORTH);
+
+	// ===========================================================
+	// Config Panel
+	// ===========================================================
+
+	configPanel = new JPanel(new GridLayout(4, 2));
+
+	lblTimerCountDown = new JLabel("Timer Count Down");
+	configPanel.add(lblTimerCountDown);
+
+	txtTimerCountDown = new JTextField(10);
+	txtTimerCountDown.setText(""+countDown);
+	configPanel.add(txtTimerCountDown);
+
+	lblNumRepetitions = new JLabel("Number or Repetitions");
+	configPanel.add(lblNumRepetitions);
+
+	txtNumRepetitions = new JTextField(10);
+	txtNumRepetitions.setText(""+countRepetitions);
+	configPanel.add(txtNumRepetitions);
+
+	lblIntervalToPressDown = new JLabel("Interval to Press Down (1s = 1000)");
+	configPanel.add(lblIntervalToPressDown);
+
+	txtIntervalToPressDown = new JTextField(10);
+	txtIntervalToPressDown.setText(""+countDownKeyPress);
+	configPanel.add(txtIntervalToPressDown);
+
+	btnConfig = new JButton("Set Configurations");
+        btnConfig.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+		    try{
+			countDown = Integer.parseInt(txtTimerCountDown.getText());
+			countRepetitions = Integer.parseInt(txtNumRepetitions.getText());
+			countDownKeyPress = Integer.parseInt(txtIntervalToPressDown.getText());
+			lblConfig.setText("Configurations Updated");
+			if(timer.isRunning()){
+			    counter = 0;
+			    timer.stop();
+			    lblTimer.setText("Macro cancelled. Try Again.");
+			}
+		    }catch (NumberFormatException nfe){
+			countDown = 3;
+			countRepetitions = 1;
+			countDownKeyPress = 500;
+			txtTimerCountDown.setText(""+countDown);
+			txtNumRepetitions.setText(""+countRepetitions);
+			txtIntervalToPressDown.setText(""+countDownKeyPress);
+			lblConfig.setText("Numbers Only, Try Again");
+		    }
+		}
+	    });
+	configPanel.add(btnConfig);
+
+	lblConfig = new JLabel("");
+	configPanel.add(lblConfig);
+
+
+	// ===========================================================
+	// Put Panels into frame
+	// ===========================================================
+	
+	frame.getContentPane().add(macroPanel, BorderLayout.NORTH);
+	frame.getContentPane().add(configPanel, BorderLayout.SOUTH);
+	frame.setResizable(false);
+	frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
+    @Override
+    public void actionPerformed(ActionEvent arg0) {
+	// TODO Auto-generated method stub
 		
-	}
+    }
 
 
 }

@@ -14,13 +14,17 @@ import java.awt.event.ActionListener;
 
 public class MacroSimulate implements ActionListener{
 
+    // Frame of program.
     private JFrame frame;
+
+    // Panel for the Macro core inputs.
     private JPanel macroPanel;
     private JLabel lblCode;
     private JLabel lblTimer;
     private JTextField txtCode;
     private JButton btnCode;
 
+    // Panel for Config inputs.
     private JPanel configPanel;
     private JLabel lblConfig;
     private JLabel lblTimerCountDown;
@@ -30,30 +34,38 @@ public class MacroSimulate implements ActionListener{
     private JTextField txtNumRepetitions;
     private JTextField txtIntervalToPressDown;
     private JButton btnConfig;
-    
+
+    // Some default configurations.
+    private Timer timer;
+    private Robis robis;
     private int width = 600;
     private int heigh = 300;
     private int counter = 0;
-    private int counterKeyPress = 0;
-    private Timer timer;
-    private Robis robis;
-    
     private int countDown = 3;
     private int countRepetitions = 1;
     private int countDownKeyPress = 500;
 
-    
+    // Main function to start the program.
     public static void main(String[] args) {
 	new MacroSimulate();
     }
 
+    // Function to tranform a String of
+    //Numbers into a Array of int.
     public int[] getNumbers(String numString){
+
+	// Array of int to return.
 	int[] numbers = new int[numString.length()];
 
 	for(int i = 0; i < numbers.length; i++){
+
+	    // Try to convert every char to a int.
 	    try{
 		numbers[i] = Integer.parseInt(""+numString.charAt(i));
-	    }catch (NumberFormatException e){
+	    }
+
+	    // Convertion doesn't work. Return an empty array.
+	    catch (NumberFormatException e){
 		lblTimer.setText("Code is numeric only. Try Again!");
 		return new int[0];
 	    }
@@ -63,12 +75,15 @@ public class MacroSimulate implements ActionListener{
 	return numbers;
     }
 
+    // Function to use the Robis class to press the keys.
     public void executeMacro(String code){
 	int counter = 0;
 	int[] numbers = getNumbers(code);
 
 	while(counter < countRepetitions){
 	    for(int i = 0; i < numbers.length; i++){
+
+		// Check which key to press.
 		switch(numbers[i]){
 		case 0:
 		    robis.pressKey(KeyEvent.VK_0);
@@ -104,6 +119,7 @@ public class MacroSimulate implements ActionListener{
 		    break;
 		}
 	    }
+	    // Sleep for some time to let the program to register those keypress.
 	    try {
 		Thread.sleep(countDownKeyPress);
 	    } catch (InterruptedException e) {
@@ -117,12 +133,16 @@ public class MacroSimulate implements ActionListener{
 
     public MacroSimulate()
     {
+
+	// Instanciate Robis;
 	robis = new Robis();
 
+	// Put some defaults.
 	countDown = 3;         
 	countRepetitions = 1; 
         countDownKeyPress = 500;
 
+	// Create the frame.
 	frame = new JFrame("Macro Simulatre");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(width, heigh);
@@ -141,18 +161,35 @@ public class MacroSimulate implements ActionListener{
 	macroPanel.add(txtCode);
 
 	timer = new Timer(1000, new ActionListener() {
+
+		// Timer function to cound down and change the message.
+		// When the timer is 0, Execute the macro using the user input.
 		public void actionPerformed(ActionEvent e) {
+
+		    // Check if timer is still counting.
 		    if(counter <= countDown){
 			lblTimer.setText("Timer: "+ (countDown - counter) + "s");
 			counter+=1;
-		    }else{
+		    }
+
+		    // Counting down is over.
+		    else{
 			counter = 0;
 			
 			String text = txtCode.getText();
 
-			executeMacro(text);
+			// input text is not empty.
+			if(!text.isEmpty()){
+			    executeMacro(text);
 
-			lblTimer.setText("Macro Done!");
+			    lblTimer.setText("Macro Done!");
+			}
+
+			// input text is empty.
+			else{
+			    
+			    lblTimer.setText("Empty code, Try again.");
+			}
 			
 			timer.stop();
 		    }
@@ -207,17 +244,24 @@ public class MacroSimulate implements ActionListener{
         btnConfig.addActionListener(new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+
+		    // Put the inputs on the right variables.
 		    try{
 			countDown = Integer.parseInt(txtTimerCountDown.getText());
 			countRepetitions = Integer.parseInt(txtNumRepetitions.getText());
 			countDownKeyPress = Integer.parseInt(txtIntervalToPressDown.getText());
 			lblConfig.setText("Configurations Updated");
+
+			// If timer is running when the config is updated, stop timer.
 			if(timer.isRunning()){
 			    counter = 0;
 			    timer.stop();
 			    lblTimer.setText("Macro cancelled. Try Again.");
 			}
-		    }catch (NumberFormatException nfe){
+		    }
+
+		    // Some input has a non numeric text. return everyone to the default value.
+		    catch (NumberFormatException nfe){
 			countDown = 3;
 			countRepetitions = 1;
 			countDownKeyPress = 500;

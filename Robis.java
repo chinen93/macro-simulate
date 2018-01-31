@@ -22,6 +22,16 @@ public class Robis {
 	robot.keyPress(KeyEvent.VK_ENTER);
 	robot.keyRelease(KeyEvent.VK_ENTER);	
     }
+
+    public void pressTab(){
+	robot.keyPress(KeyEvent.VK_TAB);
+	robot.keyRelease(KeyEvent.VK_TAB);	
+    }
+
+    public void pressEsc(){
+	robot.keyPress(KeyEvent.VK_ESCAPE);
+	robot.keyRelease(KeyEvent.VK_ESCAPE);	
+    }
     
     public void pressArrowDown(){
 	robot.keyPress(KeyEvent.VK_DOWN);

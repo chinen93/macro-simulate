@@ -70,7 +70,7 @@ public class LocationSimulate implements ActionListener{
 	private final int DEFAULT_HEIGH = 600;
 	private final int DEFAULT_COUNT_DOWN = 5;
 	private final int DEFAULT_COUNT_REPETITION = 1;
-	private final int DEFAULT_COUNT_INTERVAL = 1000;
+	private final int DEFAULT_COUNT_INTERVAL = 6000;
 
 	// Some default configurations.
 	private Timer timer;
@@ -131,23 +131,67 @@ public class LocationSimulate implements ActionListener{
         robis.pressEnter();
         robis.pressEnter();
         robis.pressEnter();
-
-        for(int i = 0; i < 35; i++){
-            robis.pressTab();
-        }
-
+        
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        
         robis.selectAndPressKey(firstLetter.charAt(0));
         robis.selectAndPressKey(secondLetter.charAt(0));
         robis.selectAndPressKey(hundred);
         robis.selectAndPressKey(decimal);
         robis.selectAndPressKey(unit);
         robis.selectAndPressKey(level);
-
-        for(int i = 0; i < 10; i++){
-            robis.pressTab();
-        }
-
+        
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        
         robis.pressEnter();
+        
+        robis.waitSomeTime(1000);
 
         robis.selectAndPressKey('p');
 
@@ -226,8 +270,13 @@ public class LocationSimulate implements ActionListener{
                                 counterRepetitions += 1;
                             }
                         }
+                        
+                        lblTimer.setText("Changing Location...");
+                        
                     }else {
 
+                    	lblTimer.setText(""); 
+                    	
                         if (counterLevel == 1 && isA) {
                             executeMacro(code, counterRepetitions, 'a', position);
                         }
@@ -345,6 +394,7 @@ public class LocationSimulate implements ActionListener{
                     else{
                         if(isMacroActive){
                             // Stop Macro.
+                        	listCodes.clear();
                             macroTimer.stop();
                             timer.stop();
                             counter = 0;

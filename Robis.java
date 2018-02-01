@@ -8,9 +8,14 @@ public class Robis {
     public Robis(){
 		try {
 			this.robot = new Robot();
+			this.robot.setAutoDelay(5);
 		} catch (AWTException e) {
 			e.printStackTrace();
 		}
+    }
+    
+    public void waitSomeTime(int ms) {
+    	robot.delay(ms);
     }
     
     public void pressKey(int key) {

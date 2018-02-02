@@ -74,7 +74,7 @@ public class LocationSimulate implements ActionListener{
 	private final int DEFAULT_HEIGH = 600;
 	private final int DEFAULT_COUNT_DOWN = 3;
 	private final int DEFAULT_COUNT_REPETITION = 1;
-	private final int DEFAULT_COUNT_INTERVAL = 6000;
+	private final int DEFAULT_COUNT_INTERVAL = 5000;
 
 	// Some default configurations.
 	private Timer timer;
@@ -90,6 +90,7 @@ public class LocationSimulate implements ActionListener{
 	private boolean isA, isB, isC;
 	private int position = 1;
 	private int option = 0;
+	private boolean isPaused = false;
 
 	private int width = DEFAULT_WIDTH;
 	private int heigh = DEFAULT_HEIGH;
@@ -200,7 +201,7 @@ public class LocationSimulate implements ActionListener{
         
         robis.pressEnter();
         
-        robis.waitSomeTime(1000);
+        robis.waitSomeTime(1500);
 
         robis.selectAndPressKey('p');
 
@@ -758,10 +759,11 @@ public class LocationSimulate implements ActionListener{
                 // Start Macro.
                 if(!isMacroActive && !listCodes.isEmpty() && isConfigurated){
                     isFileLoaded = false;
+                    isPaused = false;
                     lblFile.setText("");
                     isMacroActive = true;
                     lblConfig.setText("");
-                    btnMacro.setText(STOP_MACRO);
+                    btnMacro.setText("Pause Macro.");
                     macroTimer.stop();
                     automaticTimer.start();
                 }
@@ -769,17 +771,26 @@ public class LocationSimulate implements ActionListener{
 	            else{
 	                if(isMacroActive){
 	                    // Stop Macro.
-	                	listCodes.clear();
-	                    macroTimer.stop();
-	                    automaticTimer.stop();
-	                    counter = 0;
-	                    counterRepetitions = 0;
-	                    isMacroActive = false;
-	                    btnMacro.setText(START_COUNTDOWN);
-	                    lblRepetitions.setText("");
-	                    lblTimer.setText(TIMER_INFO);
-	                    txtAreaFileInfo.selectAll();
-	                    txtAreaFileInfo.replaceSelection("");
+	                	//listCodes.clear();
+	                    //macroTimer.stop();
+	                    //automaticTimer.stop();
+	                    //counter = 0;
+	                    //counterRepetitions = 0;
+	                    //isMacroActive = false;
+	                    //btnMacro.setText(START_COUNTDOWN);
+	                    //lblRepetitions.setText("");
+	                    //lblTimer.setText(TIMER_INFO);
+	                    //txtAreaFileInfo.selectAll();
+	                    //txtAreaFileInfo.replaceSelection("");
+	                	if(!isPaused) {
+		                	macroTimer.stop();	                		
+		                	isPaused = true;
+		                	btnMacro.setText("Resume Macro.");
+	                	}else {
+		                	automaticTimer.start();
+		                	isPaused = false;
+		                	btnMacro.setText("Pause Macro.");
+		                }
 	                }
 	            }
             }

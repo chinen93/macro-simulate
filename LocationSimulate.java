@@ -47,6 +47,7 @@ public class LocationSimulate implements ActionListener{
     private JLabel lblRepetitions;
 	private JButton btnInputCode;
 	private JButton btnInputLocation;
+	private JButton btnMacro;
 
 	// Panel for Config inputs.
 	private JPanel configPanel;
@@ -77,6 +78,7 @@ public class LocationSimulate implements ActionListener{
 
 	// Some default configurations.
 	private Timer timer;
+	private Timer automaticTimer;
 	private Timer macroTimer;
 	private Robis robis;
 	private int counter = 0, counterLevel;
@@ -109,11 +111,102 @@ public class LocationSimulate implements ActionListener{
 	private final String STOP_MACRO = "Stop Macro!";
 	private final String TIMER_INFO = "Timer for Macro Execution";
 	private final String REPETITION_INFO = "";
+	private String START_COUNTDOWN = "Set Config and Start Countdown to Macro!";
 
 	// Main function to start the program.
 	public static void main(String[] args) {
 		new LocationSimulate();
 	}	
+	
+	// Function to use the Robis class to press the keys.
+	public void executeMacro(String serial, int number, char level, int position){
+        int hundred = (int) number / 100;
+        int decimal = (int) number / 10;
+        int unit = number %10;
+
+        String location =   firstLetter +
+                            secondLetter +
+                            Integer.toString(hundred) +
+                            Integer.toString(decimal) +
+                            Integer.toString(unit) +
+                            level;
+
+        lblRepetitions.setText("Code: "+ serial + " Location: "+ location +" Position: "+ position +".");
+
+        for(int i=0; i<serial.length(); i++){
+            robis.selectAndPressKey(Integer.parseInt(""+serial.charAt(i)));
+        }
+
+        robis.pressEnter();
+        robis.pressEnter();
+        robis.pressEnter();
+        
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        
+        robis.selectAndPressKey(firstLetter.charAt(0));
+        robis.selectAndPressKey(secondLetter.charAt(0));
+        robis.selectAndPressKey(hundred);
+        robis.selectAndPressKey(decimal);
+        robis.selectAndPressKey(unit);
+        robis.selectAndPressKey(level);
+        
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        robis.pressTab();
+        
+        robis.pressEnter();
+        
+        robis.waitSomeTime(1000);
+
+        robis.selectAndPressKey('p');
+
+        robis.pressEsc();
+        robis.pressEsc();
+	}
 	
 	public void typeCode(String serial) {
 
@@ -213,6 +306,94 @@ public class LocationSimulate implements ActionListener{
         frame.setAlwaysOnTop(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(width, heigh);
+        
+     // ===========================================================
+        // Macro Timer
+        // ===========================================================
+        macroTimer = new Timer(DEFAULT_COUNT_INTERVAL, new ActionListener() {
+
+            // Timer for each macro action.
+            public void actionPerformed(ActionEvent e) {
+
+                // End of macro, return everything to normal for
+                // the next macro.
+                if(listCodes.isEmpty() || !isMacroActive){
+                    macroTimer.stop();
+                    counterRepetitions = 0;
+                    position = 1;
+                    lblRepetitions.setText(REPETITION_INFO);
+                    lblTimer.setText(MACRO_DONE);
+                    isMacroActive = false;
+                    btnMacro.setText(START_COUNTDOWN);
+                    isFileLoaded = false;
+                    txtAreaFileInfo.selectAll();
+                    txtAreaFileInfo.replaceSelection("");
+                    lblFile.setText("");
+                }
+
+                // Macro has not ended yet.
+                else{
+
+                    String code = listCodes.remove();
+
+                    try {
+                        int end = txtAreaFileInfo.getLineEndOffset(0);
+                        txtAreaFileInfo.replaceRange("", 0, end);
+                    }
+                    catch (BadLocationException ble) {
+
+                    }
+
+                    if(code.equals("1111111111111")){
+                        counterLevel += 1;
+                        position = 1;
+
+                        if( (counterLevel > 1 && isA && !isB && !isC) ||
+                            (counterLevel > 2 && isB && !isC) ||
+                            (counterLevel > 3 && isC)) {
+
+                            if(isC){
+                                counterLevel = 3;
+                            }
+                            if(isB){
+                                counterLevel = 2;
+                            }
+                            if(isA){
+                                counterLevel = 1;
+                            }
+
+                            if(chbSide.isSelected()) {
+                                counterRepetitions += 2;
+                            }else{
+                                counterRepetitions += 1;
+                            }
+                        }
+                        
+                        lblTimer.setText("Changing Location...");
+                        
+                    }else {
+
+                    	lblTimer.setText(""); 
+                    	
+                        if (counterLevel == 1 && isA) {
+                            executeMacro(code, counterRepetitions, 'a', position);
+                        }
+
+                        if (counterLevel == 2 && isB) {
+                            executeMacro(code, counterRepetitions, 'b', position);
+                        }
+
+                        if (counterLevel == 3 && isC) {
+                            executeMacro(code, counterRepetitions, 'c', position);
+                        }
+
+                        position += 1;
+                    }
+                }
+            }
+        });
+        macroTimer.setInitialDelay(0);
+        macroTimer.setRepeats(true);
 
         // ===========================================================
         // Macro Panel
@@ -467,14 +648,12 @@ public class LocationSimulate implements ActionListener{
                      countRepetitions = numberTo;                             
                  }
                  catch (Exception error){
-                	 System.out.println("OI");
                      lblTimer.setText(CODE_ERROR);
                      counterRepetitions = 0;
                      lblRepetitions.setText(REPETITION_INFO);
                      isMacroActive = false;
                      btnInputCode.setText(START_COUNT_CODE);
                  }
-                 System.out.println("-" + isConfigurated);	
             }
                
         });
@@ -530,6 +709,82 @@ public class LocationSimulate implements ActionListener{
 
         lblFile = new JLabel("");
         configPanel.add(lblFile);
+        
+        configPanel.add(new JLabel(""));
+        
+        
+        automaticTimer = new Timer(1000, new ActionListener() {
+
+            // Timer function to cound down and change the message.
+            // When the timer is 0, Execute the macro using the user input.
+            public void actionPerformed(ActionEvent e) {
+
+                // Check if timer is still counting.
+                if(counter <= countDown){
+                    lblTimer.setText("Timer: "+ (countDown - counter) + "s");
+                    counter+=1;
+                }
+
+                // Counting down is over.
+                else{
+                    counter = 0;
+                   
+                    macroTimer.setDelay(countInterval);
+                    macroTimer.start();
+
+                    lblRepetitions.setText(REPETITION_INFO);
+                    
+                    counter = 0;
+                    automaticTimer.stop();
+                }
+            }
+        });
+        automaticTimer.setInitialDelay(0);
+        automaticTimer.setRepeats(true);
+        
+        btnMacro = new JButton(START_COUNTDOWN);
+        btnMacro.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	
+	        	if(listCodes.isEmpty()){
+	        		lblFile.setText("Load a File First.");
+	        	}
+	        	
+	        	if(!isConfigurated){
+	        		lblConfig.setText("Configurate before usage.");
+				}
+	
+                // Start Macro.
+                if(!isMacroActive && !listCodes.isEmpty() && isConfigurated){
+                    isFileLoaded = false;
+                    lblFile.setText("");
+                    isMacroActive = true;
+                    lblConfig.setText("");
+                    btnMacro.setText(STOP_MACRO);
+                    macroTimer.stop();
+                    automaticTimer.start();
+                }
+	
+	            else{
+	                if(isMacroActive){
+	                    // Stop Macro.
+	                	listCodes.clear();
+	                    macroTimer.stop();
+	                    automaticTimer.stop();
+	                    counter = 0;
+	                    counterRepetitions = 0;
+	                    isMacroActive = false;
+	                    btnMacro.setText(START_COUNTDOWN);
+	                    lblRepetitions.setText("");
+	                    lblTimer.setText(TIMER_INFO);
+	                    txtAreaFileInfo.selectAll();
+	                    txtAreaFileInfo.replaceSelection("");
+	                }
+	            }
+            }
+        });
+        configPanel.add(btnMacro);
 
 
         // ===========================================================

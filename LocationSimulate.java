@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.LinkedList;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -36,6 +37,8 @@ public class LocationSimulate implements ActionListener{
 	private JLabel lblFile;
 	private boolean isFileLoaded = false;
 
+	private JPanel colorPanel;
+	
 	// Panel for Information's about File content
 	private JPanel filePanel;
 	private JTextArea txtAreaFileInfo;
@@ -44,7 +47,9 @@ public class LocationSimulate implements ActionListener{
 	private JPanel macroPanel;
 	private JLabel lblInfo;
 	private JLabel lblTimer;
-    private JLabel lblRepetitions;
+    private JLabel lblCode;
+    private JLabel lblLocation;
+    private JLabel lblPosition;
 	private JButton btnInputCode;
 	private JButton btnInputLocation;
 	private JButton btnMacro;
@@ -120,19 +125,7 @@ public class LocationSimulate implements ActionListener{
 	}	
 	
 	// Function to use the Robis class to press the keys.
-	public void executeMacro(String serial, int number, char level, int position){
-        int hundred = (int) number / 100;
-        int decimal = (int) number / 10;
-        int unit = number %10;
-
-        String location =   firstLetter +
-                            secondLetter +
-                            Integer.toString(hundred) +
-                            Integer.toString(decimal) +
-                            Integer.toString(unit) +
-                            level;
-
-        lblRepetitions.setText("Code: "+ serial + " Location: "+ location +" Position: "+ position +".");
+	public void executeMacro(String serial, int hundred, int decimal, int unit, char level, int position){
 
         for(int i=0; i<serial.length(); i++){
             robis.selectAndPressKey(Integer.parseInt(""+serial.charAt(i)));
@@ -201,7 +194,7 @@ public class LocationSimulate implements ActionListener{
         
         robis.pressEnter();
         
-        robis.waitSomeTime(1500);
+        robis.waitSomeTime(2000);
 
         robis.selectAndPressKey('p');
 
@@ -264,14 +257,6 @@ public class LocationSimulate implements ActionListener{
 		int decimal = (int) number / 10;
 		int unit = number %10;
 		
-		String text = lblRepetitions.getText();
-		String location =  	Integer.toString(hundred) +
-                			Integer.toString(decimal) +
-            				Integer.toString(unit) +
-            				level;
-		
-		lblRepetitions.setText(text + " Location:" + location);
-		
 		robis.selectAndPressKey(firstLetter.charAt(0));
         robis.selectAndPressKey(secondLetter.charAt(0));
         robis.selectAndPressKey(hundred);
@@ -307,6 +292,7 @@ public class LocationSimulate implements ActionListener{
         frame.setAlwaysOnTop(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(width, heigh);
+
         
      // ===========================================================
         // Macro Timer
@@ -322,7 +308,9 @@ public class LocationSimulate implements ActionListener{
                     macroTimer.stop();
                     counterRepetitions = 0;
                     position = 1;
-                    lblRepetitions.setText(REPETITION_INFO);
+                    lblCode.setText(REPETITION_INFO);
+                    lblLocation.setText(REPETITION_INFO);
+                    lblPosition.setText(REPETITION_INFO);
                     lblTimer.setText(MACRO_DONE);
                     isMacroActive = false;
                     btnMacro.setText(START_COUNTDOWN);
@@ -336,6 +324,15 @@ public class LocationSimulate implements ActionListener{
                 else{
 
                     String code = listCodes.remove();
+                    int hundred = (int) counterRepetitions / 100;
+                    int decimal = (int) counterRepetitions / 10;
+                    int unit = counterRepetitions %10;
+
+                    String location =   firstLetter +
+                                        secondLetter +
+                                        Integer.toString(hundred) +
+                                        Integer.toString(decimal) +
+                                        Integer.toString(unit);
 
                     try {
                         int end = txtAreaFileInfo.getLineEndOffset(0);
@@ -377,15 +374,27 @@ public class LocationSimulate implements ActionListener{
                     	lblTimer.setText(""); 
                     	
                         if (counterLevel == 1 && isA) {
-                            executeMacro(code, counterRepetitions, 'a', position);
+                        	location += "A";
+                            lblCode.setText("Code: "+ code);
+                            lblLocation.setText("Loc:  "+ location);
+                            lblPosition.setText("Pos:  "+ position);
+                            executeMacro(code, hundred, decimal, unit, 'a', position);
                         }
 
                         if (counterLevel == 2 && isB) {
-                            executeMacro(code, counterRepetitions, 'b', position);
+                        	location += "B";
+                            lblCode.setText("Code: "+ code);
+                            lblLocation.setText("Loc:  "+ location);
+                            lblPosition.setText("Pos:  "+ position);
+                            executeMacro(code, hundred, decimal, unit, 'b', position);
                         }
 
                         if (counterLevel == 3 && isC) {
-                            executeMacro(code, counterRepetitions, 'c', position);
+                        	location += "C";
+                            lblCode.setText("Code: "+ code);
+                            lblLocation.setText("Loc:  "+ location);
+                            lblPosition.setText("Pos:  "+ position);
+                            executeMacro(code, hundred, decimal, unit, 'c', position);
                         }
 
                         position += 1;
@@ -400,7 +409,7 @@ public class LocationSimulate implements ActionListener{
         // Macro Panel
         // ===========================================================
 
-        macroPanel = new JPanel(new GridLayout(5, 1));
+        macroPanel = new JPanel(new GridLayout(7, 1));
 
         lblInfo = new JLabel(MACRO_INFO);
         macroPanel.add(lblInfo);
@@ -466,7 +475,6 @@ public class LocationSimulate implements ActionListener{
 	                 	}else {
 	                 		position += 1;
 	                 		
-	                 		lblRepetitions.setText("Code: "+code+ " Position:"+position);
 	                 		typeCode(code);
 	                 	}
                     	
@@ -519,6 +527,7 @@ public class LocationSimulate implements ActionListener{
                 }
     		}
         });
+        btnInputCode.setEnabled(false);
         macroPanel.add(btnInputCode);
         
         btnInputLocation = new JButton(START_COUNT_LOCATION);
@@ -544,14 +553,24 @@ public class LocationSimulate implements ActionListener{
                 }
     		}
         });
+        btnInputLocation.setEnabled(false);
         macroPanel.add(btnInputLocation);
 
         lblTimer = new JLabel(TIMER_INFO);
         macroPanel.add(lblTimer);
 
-        lblRepetitions = new JLabel(REPETITION_INFO);
-        lblRepetitions.setFont(new Font("Serif", Font.PLAIN, 16));
-        macroPanel.add(lblRepetitions);
+        lblCode = new JLabel(REPETITION_INFO);
+        lblCode.setFont(new Font("Serif", Font.BOLD, 22));
+        lblCode.setForeground(Color.BLUE);
+        macroPanel.add(lblCode);
+        lblLocation = new JLabel(REPETITION_INFO);
+        lblLocation.setFont(new Font("Serif", Font.BOLD, 22));
+        lblLocation.setForeground(Color.BLUE);
+        macroPanel.add(lblLocation);
+        lblPosition = new JLabel(REPETITION_INFO);
+        lblPosition.setFont(new Font("Serif", Font.BOLD, 22));
+        lblPosition.setForeground(Color.BLUE);
+        macroPanel.add(lblPosition);
 
         // ===========================================================
         // Informations Panel
@@ -560,7 +579,6 @@ public class LocationSimulate implements ActionListener{
 
         txtAreaFileInfo = new JTextArea(10, 13);
         txtAreaFileInfo.setEditable(false);
-
         filePanel.add(txtAreaFileInfo);
 
 
@@ -651,7 +669,9 @@ public class LocationSimulate implements ActionListener{
                  catch (Exception error){
                      lblTimer.setText(CODE_ERROR);
                      counterRepetitions = 0;
-                     lblRepetitions.setText(REPETITION_INFO);
+                     lblCode.setText(REPETITION_INFO);
+                     lblLocation.setText(REPETITION_INFO);
+                     lblPosition.setText(REPETITION_INFO);
                      isMacroActive = false;
                      btnInputCode.setText(START_COUNT_CODE);
                  }
@@ -732,8 +752,6 @@ public class LocationSimulate implements ActionListener{
                    
                     macroTimer.setDelay(countInterval);
                     macroTimer.start();
-
-                    lblRepetitions.setText(REPETITION_INFO);
                     
                     counter = 0;
                     automaticTimer.stop();
@@ -758,6 +776,9 @@ public class LocationSimulate implements ActionListener{
 	
                 // Start Macro.
                 if(!isMacroActive && !listCodes.isEmpty() && isConfigurated){
+            		lblCode.setForeground(Color.BLUE);
+            		lblLocation.setForeground(Color.BLUE);
+            		lblPosition.setForeground(Color.BLUE);
                     isFileLoaded = false;
                     isPaused = false;
                     lblFile.setText("");
@@ -783,10 +804,21 @@ public class LocationSimulate implements ActionListener{
 	                    //txtAreaFileInfo.selectAll();
 	                    //txtAreaFileInfo.replaceSelection("");
 	                	if(!isPaused) {
-		                	macroTimer.stop();	                		
+	                		// Pause
+	                		lblCode.setForeground(Color.RED);
+	                		lblLocation.setForeground(Color.RED);
+	                		lblPosition.setForeground(Color.RED);
+		                	macroTimer.stop();
+		                	automaticTimer.stop();
+		                	counter = 0;
+		                	lblTimer.setText("");
 		                	isPaused = true;
 		                	btnMacro.setText("Resume Macro.");
 	                	}else {
+	                		// Resume
+	                		lblCode.setForeground(Color.BLUE);
+	                		lblLocation.setForeground(Color.BLUE);
+	                		lblPosition.setForeground(Color.BLUE);
 		                	automaticTimer.start();
 		                	isPaused = false;
 		                	btnMacro.setText("Pause Macro.");

@@ -85,10 +85,10 @@ public class MacroSimulate implements ActionListener{
     public void executeMacro(String code){
 
     	for(int i=0; i < code.length(); i++) {
-    		robis.selectAndPressKey(code.charAt(i));
+	    robis.selectAndPressKey(code.charAt(i));
     	}
 		
-		robis.pressArrowDown();
+	robis.pressArrowDown();
     }
 
 
@@ -96,229 +96,229 @@ public class MacroSimulate implements ActionListener{
     {
 
     	// Instanciate Robis;
-		robis = new Robis();
+	robis = new Robis();
 	
-		// Create the frame.
-		frame = new JFrame(SYSTEM_TITLE);
-		frame.setAlwaysOnTop(true);
+	// Create the frame.
+	frame = new JFrame(SYSTEM_TITLE);
+	frame.setAlwaysOnTop(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(width, heigh);
 
-		// ===========================================================
-		// Macro Timer  
-		// ===========================================================
-		macroTimer = new Timer(DEFAULT_COUNT_INTERVAL, new ActionListener() {
+	// ===========================================================
+	// Macro Timer  
+	// ===========================================================
+	macroTimer = new Timer(DEFAULT_COUNT_INTERVAL, new ActionListener() {
 	
-			// Timer for each macro action.
-			public void actionPerformed(ActionEvent e) {
+		// Timer for each macro action.
+		public void actionPerformed(ActionEvent e) {
 	
-			    // End of macro, return everything to normal for
-			    // the next macro.
-			    if(counterRepetitions >= countRepetitions){
-					macroTimer.stop();
-					counterRepetitions = 0;
-					lblRepetitions.setText("");
-					lblTimer.setText(MACRO_DONE);
-					isMacroActive = false;
-					btnCode.setText(START_COUNTDOWN);
-			    }
+		    // End of macro, return everything to normal for
+		    // the next macro.
+		    if(counterRepetitions >= countRepetitions){
+			macroTimer.stop();
+			counterRepetitions = 0;
+			lblRepetitions.setText("");
+			lblTimer.setText(MACRO_DONE);
+			isMacroActive = false;
+			btnCode.setText(START_COUNTDOWN);
+		    }
 	
-			    // Macro has not ended yet.
-			    else{
-			    	executeMacro(code);
-					int repetitions = (countRepetitions - counterRepetitions - 1);
-					lblRepetitions.setText(""+ repetitions + " repetitions left.");
-					counterRepetitions += 1;
-			    }
-			}
+		    // Macro has not ended yet.
+		    else{
+			executeMacro(code);
+			int repetitions = (countRepetitions - counterRepetitions - 1);
+			lblRepetitions.setText(""+ repetitions + " repetitions left.");
+			counterRepetitions += 1;
+		    }
+		}
 	    });
-		macroTimer.setInitialDelay(0);
+	macroTimer.setInitialDelay(0);
         macroTimer.setRepeats(true);
 	
 
-		// ===========================================================
-		// Macro Panel  
-		// ===========================================================
+	// ===========================================================
+	// Macro Panel  
+	// ===========================================================
 	
         macroPanel = new JPanel(new GridLayout(5, 1));
 
-		lblCode = new JLabel(CODE_INFO);
-		macroPanel.add(lblCode);
+	lblCode = new JLabel(CODE_INFO);
+	macroPanel.add(lblCode);
 	
-		txtCode = new JTextField(10);
-		macroPanel.add(txtCode);
+	txtCode = new JTextField(10);
+	macroPanel.add(txtCode);
 
-		timer = new Timer(1000, new ActionListener() {
+	timer = new Timer(1000, new ActionListener() {
 
-			// Timer function to cound down and change the message.
-			// When the timer is 0, Execute the macro using the user input.
-			public void actionPerformed(ActionEvent e) {
+		// Timer function to cound down and change the message.
+		// When the timer is 0, Execute the macro using the user input.
+		public void actionPerformed(ActionEvent e) {
 	
-			    // Check if timer is still counting.
-			    if(counter <= countDown){
-			    	lblTimer.setText("Timer: "+ (countDown - counter) + "s");
-			    	counter+=1;
-			    }
+		    // Check if timer is still counting.
+		    if(counter <= countDown){
+			lblTimer.setText("Timer: "+ (countDown - counter) + "s");
+			counter+=1;
+		    }
 	
-			    // Counting down is over.
-			    else{
-			    	counter = 0;
+		    // Counting down is over.
+		    else{
+			counter = 0;
 	
-			    	code = txtCode.getText();
+			code = txtCode.getText();
 				
-				// input text is not empty.
-				if(!code.isEmpty()){
-				    macroTimer.setDelay(countInterval);
-				    counterRepetitions = 0;
-				    macroTimer.start();
-				}
-	
-				// input text is empty.
-				else{
-				    
-				    lblTimer.setText(CODE_ERROR);
-				    macroTimer.stop();
-				    counterRepetitions = 0;
-				    lblRepetitions.setText("");
-				    isMacroActive = false;
-				    btnCode.setText(START_COUNTDOWN);
-				}
-				
-				lblRepetitions.setText("");
-				counter = 0;
-				timer.stop();
-			    }
+			// input text is not empty.
+			if(!code.isEmpty()){
+			    macroTimer.setDelay(countInterval);
+			    counterRepetitions = 0;
+			    macroTimer.start();
 			}
+	
+			// input text is empty.
+			else{
+				    
+			    lblTimer.setText(CODE_ERROR);
+			    macroTimer.stop();
+			    counterRepetitions = 0;
+			    lblRepetitions.setText("");
+			    isMacroActive = false;
+			    btnCode.setText(START_COUNTDOWN);
+			}
+				
+			lblRepetitions.setText("");
+			counter = 0;
+			timer.stop();
+		    }
+		}
 	    });
-		timer.setInitialDelay(0);
-	    timer.setRepeats(true);
+	timer.setInitialDelay(0);
+	timer.setRepeats(true);
 		
-		btnCode = new JButton(START_COUNTDOWN);
-	    btnCode.addActionListener(new ActionListener() {
+	btnCode = new JButton(START_COUNTDOWN);
+	btnCode.addActionListener(new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 	
 		    // Start Macro.
 		    if(!isMacroActive){
 				
-				// Put the inputs on the right variables.
-				try{
-				    countDown = Integer.parseInt(txtTimerCountDown.getText());
-				    countRepetitions = Integer.parseInt(txtNumRepetitions.getText());
-				    countInterval = Integer.parseInt(txtIntervalToPressDown.getText());
-				    lblConfig.setText(CONFIG_UPDATE);
+			// Put the inputs on the right variables.
+			try{
+			    countDown = Integer.parseInt(txtTimerCountDown.getText());
+			    countRepetitions = Integer.parseInt(txtNumRepetitions.getText());
+			    countInterval = Integer.parseInt(txtIntervalToPressDown.getText());
+			    lblConfig.setText(CONFIG_UPDATE);
 		
-				    isMacroActive = true;
-				    lblConfig.setText("");
-				    btnCode.setText(STOP_MACRO);
-				    macroTimer.stop();
-				    timer.start();
+			    isMacroActive = true;
+			    lblConfig.setText("");
+			    btnCode.setText(STOP_MACRO);
+			    macroTimer.stop();
+			    timer.start();
 				    
-				}
+			}
 		
-				// Some input has a non numeric text. return
-				// everyone to the default value.
-				catch (NumberFormatException nfe){
-				    txtTimerCountDown.setText(""+countDown);
-				    txtNumRepetitions.setText(""+countRepetitions);
-				    txtIntervalToPressDown.setText(""+countInterval);
-				    lblConfig.setText(CONFIG_ERROR);
-				}
-			    }
+			// Some input has a non numeric text. return
+			// everyone to the default value.
+			catch (NumberFormatException nfe){
+			    txtTimerCountDown.setText(""+countDown);
+			    txtNumRepetitions.setText(""+countRepetitions);
+			    txtIntervalToPressDown.setText(""+countInterval);
+			    lblConfig.setText(CONFIG_ERROR);
+			}
+		    }
 			    
-			    // Stop Macro.
-			    else{
-					macroTimer.stop();
-					timer.stop();
-					counter = 0;
-					counterRepetitions = 0;
-					isMacroActive = false;
-					btnCode.setText(START_COUNTDOWN);
-					lblRepetitions.setText("");
-					lblTimer.setText(TIMER_INFO);
-			    }
-			}
+		    // Stop Macro.
+		    else{
+			macroTimer.stop();
+			timer.stop();
+			counter = 0;
+			counterRepetitions = 0;
+			isMacroActive = false;
+			btnCode.setText(START_COUNTDOWN);
+			lblRepetitions.setText("");
+			lblTimer.setText(TIMER_INFO);
+		    }
+		}
 	    });
-		macroPanel.add(btnCode);
+	macroPanel.add(btnCode);
 	
 	
-		lblTimer = new JLabel(TIMER_INFO);
-		macroPanel.add(lblTimer);
+	lblTimer = new JLabel(TIMER_INFO);
+	macroPanel.add(lblTimer);
 	
-		lblRepetitions = new JLabel("");
-		macroPanel.add(lblRepetitions);
+	lblRepetitions = new JLabel("");
+	macroPanel.add(lblRepetitions);
 	
-		// ===========================================================
-		// Config Panel
-		// ===========================================================
+	// ===========================================================
+	// Config Panel
+	// ===========================================================
 	
-		configPanel = new JPanel(new GridLayout(4, 2));
+	configPanel = new JPanel(new GridLayout(4, 2));
 	
-		lblTimerCountDown = new JLabel(CONFIG_TIMER);
-		configPanel.add(lblTimerCountDown);
+	lblTimerCountDown = new JLabel(CONFIG_TIMER);
+	configPanel.add(lblTimerCountDown);
 	
-		txtTimerCountDown = new JTextField(10);
-		txtTimerCountDown.setText(""+countDown);
-		configPanel.add(txtTimerCountDown);
+	txtTimerCountDown = new JTextField(10);
+	txtTimerCountDown.setText(""+countDown);
+	configPanel.add(txtTimerCountDown);
 	
-		lblNumRepetitions = new JLabel(CONFIG_REPETITION);
-		configPanel.add(lblNumRepetitions);
+	lblNumRepetitions = new JLabel(CONFIG_REPETITION);
+	configPanel.add(lblNumRepetitions);
 	
-		txtNumRepetitions = new JTextField(10);
-		txtNumRepetitions.setText(""+countRepetitions);
-		configPanel.add(txtNumRepetitions);
+	txtNumRepetitions = new JTextField(10);
+	txtNumRepetitions.setText(""+countRepetitions);
+	configPanel.add(txtNumRepetitions);
 	
-		lblIntervalToPressDown = new JLabel(CONFIG_INTERVAL);
-		configPanel.add(lblIntervalToPressDown);
+	lblIntervalToPressDown = new JLabel(CONFIG_INTERVAL);
+	configPanel.add(lblIntervalToPressDown);
 	
-		txtIntervalToPressDown = new JTextField(10);
-		txtIntervalToPressDown.setText(""+countInterval);
-		configPanel.add(txtIntervalToPressDown);
+	txtIntervalToPressDown = new JTextField(10);
+	txtIntervalToPressDown.setText(""+countInterval);
+	configPanel.add(txtIntervalToPressDown);
 	
-		btnConfig = new JButton(CONFIG_BUTTON);
-	    btnConfig.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
+	btnConfig = new JButton(CONFIG_BUTTON);
+	btnConfig.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
 		
-			    // Put the inputs on the right variables.
-			    try{
-					countDown = Integer.parseInt(txtTimerCountDown.getText());
-					countRepetitions = Integer.parseInt(txtNumRepetitions.getText());
-					countInterval = Integer.parseInt(txtIntervalToPressDown.getText());
-					lblConfig.setText(CONFIG_UPDATE);
+		    // Put the inputs on the right variables.
+		    try{
+			countDown = Integer.parseInt(txtTimerCountDown.getText());
+			countRepetitions = Integer.parseInt(txtNumRepetitions.getText());
+			countInterval = Integer.parseInt(txtIntervalToPressDown.getText());
+			lblConfig.setText(CONFIG_UPDATE);
 			
-					// If timer is running when the config is updated, stop timer.
-					if(timer.isRunning()){
-					    counter = 0;
-					    timer.stop();
-					    lblTimer.setText(CANCEL_MACRO);
-					}
-			    }
-	
-			    // Some input has a non numeric text. return everyone to the default value.
-			    catch (NumberFormatException nfe){
-					txtTimerCountDown.setText(""+countDown);
-					txtNumRepetitions.setText(""+countRepetitions);
-					txtIntervalToPressDown.setText(""+countInterval);
-					lblConfig.setText(CONFIG_ERROR);
-			    }
+			// If timer is running when the config is updated, stop timer.
+			if(timer.isRunning()){
+			    counter = 0;
+			    timer.stop();
+			    lblTimer.setText(CANCEL_MACRO);
 			}
+		    }
+	
+		    // Some input has a non numeric text. return everyone to the default value.
+		    catch (NumberFormatException nfe){
+			txtTimerCountDown.setText(""+countDown);
+			txtNumRepetitions.setText(""+countRepetitions);
+			txtIntervalToPressDown.setText(""+countInterval);
+			lblConfig.setText(CONFIG_ERROR);
+		    }
+		}
 	    });
-		configPanel.add(btnConfig);
+	configPanel.add(btnConfig);
 	
-		lblConfig = new JLabel("");
-		configPanel.add(lblConfig);
+	lblConfig = new JLabel("");
+	configPanel.add(lblConfig);
 	
 	
-		// ===========================================================
-		// Put Panels into frame
-		// ===========================================================
+	// ===========================================================
+	// Put Panels into frame
+	// ===========================================================
 		
-		frame.getContentPane().add(macroPanel, BorderLayout.NORTH);
-		frame.getContentPane().add(configPanel, BorderLayout.SOUTH);
-		frame.setResizable(false);
-		frame.setLocationRelativeTo(null);
-	    frame.setVisible(true);
+	frame.getContentPane().add(macroPanel, BorderLayout.NORTH);
+	frame.getContentPane().add(configPanel, BorderLayout.SOUTH);
+	frame.setResizable(false);
+	frame.setLocationRelativeTo(null);
+	frame.setVisible(true);
     }
 
     @Override

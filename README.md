@@ -6,6 +6,7 @@ What it does is:
 
  - Enter a code (with numbers and letters).
  - Press `arrow down` once.
+ - Repeat.
 
 Configuration:
  - Timer Count Down = Tells the time until the macro starts.
@@ -25,6 +26,7 @@ What it does is:
  - Press `Enter` twice.
  - Enter a code like `AA000A`.
  - Press `Enter` twice.
+ - Repeat.
 
 This code `AA000A` is the location where the product with the serial
 number is stored. It has the following meaning:
@@ -59,6 +61,7 @@ What it does is:
  - Wait some time.
  - Press `p`
  - Press `Esc` twice.
+ - Repeat.
 
 This Macro needs a file to be loaded, where all the serial numbers are
 stored.
